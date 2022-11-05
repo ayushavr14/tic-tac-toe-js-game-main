@@ -3,11 +3,13 @@ let restartBtn = document.getElementById('restartBtn')
 let boxes = Array.from(document.getElementsByClassName('box'))
 
 let winnerIndicator = getComputedStyle(document.body).getPropertyValue('--winning-blocks')
+let drawIndicator = getComputedStyle(document.body).getPropertyValue('--draw-blocks')
 
 const O_TEXT = "O"
 const X_TEXT = "X"
 let currentPlayer = X_TEXT
 let spaces = Array(9).fill(null)
+let count_plays = 0
 
 const startGame = () => {
     boxes.forEach(box => box.addEventListener('click', boxClicked))
@@ -16,19 +18,23 @@ const startGame = () => {
 function boxClicked(e) {
     const id = e.target.id
 
-    if(!spaces[id]){
+    if(!spaces[id] && count_plays < 9){
         spaces[id] = currentPlayer
         e.target.innerText = currentPlayer
 
         if(playerHasWon() !==false){
             playerText.innerHTML = `${currentPlayer} has won!`
             let winning_blocks = playerHasWon()
-
+            count_plays = 10
             winning_blocks.map( box => boxes[box].style.backgroundColor=winnerIndicator)
             return
         }
-
+        count_plays++
         currentPlayer = currentPlayer == X_TEXT ? O_TEXT : X_TEXT
+    }
+    if(count_plays===9){
+        playerText.innerHTML = "Draw Game"
+        boxes.forEach(box=>box.style.color=drawIndicator)
     }
 }
 
@@ -58,10 +64,12 @@ restartBtn.addEventListener('click', restart)
 
 function restart() {
     spaces.fill(null)
+    count_plays=0
 
     boxes.forEach( box => {
         box.innerText = ''
         box.style.backgroundColor=''
+        box.style.color = ''
     })
 
     playerText.innerHTML = 'Tic Tac Toe'
